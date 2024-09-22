@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录和注册</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+        input {
+            width: 92%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .message {
+            color: red;
+            margin: 10px 0;
+        }
+        .success {
+            color: green;
+        }
+        #toggle {
+            text-align: center;
+            cursor: pointer;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="auth-container">
+    <h2 id="form-title">登录</h2>
+    
+    <div id="message" class="message"></div>
+    
+    <form id="auth-form">
+        <input type="text" id="username" placeholder="用户名" required>
+        <input type="password" id="password" placeholder="密码" required>
+        <button type="submit">登录</button>
+    </form>
+    
+    <p id="toggle">没有账号？点击注册</p>
+</div>
+
+<script>
+    const authForm = document.getElementById('auth-form');
+    const formTitle = document.getElementById('form-title');
+    const messageDiv = document.getElementById('message');
+    const toggleLink = document.getElementById('toggle');
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+    let isLogin = true;  // 默认是登录页面
+
+    // 切换登录/注册表单
+    toggleLink.addEventListener('click', () => {
+        isLogin = !isLogin;
+        if (isLogin) {
+            formTitle.innerText = '登录';
+            toggleLink.innerText = '没有账号？点击注册';
+            authForm.querySelector('button').innerText = '登录';
+            messageDiv.innerHTML = '';  // 清除消息
+        } else {
+            formTitle.innerText = '注册';
+            toggleLink.innerText = '已有账号？点击登录';
+            authForm.querySelector('button').innerText = '注册';
+            messageDiv.innerHTML = '';  // 清除消息
+        }
+    });
+
+    // 表单提交处理
+    authForm.addEventListener('submit', (e) => {
+        e.preventDefault();  // 防止页面刷新
+        const username = usernameInput.value;
+        const password = passwordInput.value;
+
+        if (isLogin) {
+            // 登录逻辑
+            const storedUser = JSON.parse(localStorage.getItem(username));
+            if (storedUser && storedUser.password === password) {
+                messageDiv.innerHTML = '<span class="success">登录成功！</span>';
+            } else {
+                messageDiv.innerHTML = '<span class="message">用户名或密码错误。</span>';
+            }
+        } else {
+            // 注册逻辑
+            const existingUser = localStorage.getItem(username);
+            if (existingUser) {
+                messageDiv.innerHTML = '<span class="message">用户名已存在，请选择其他用户名。</span>';
+            } else {
+                localStorage.setItem(username, JSON.stringify({ password }));
+                messageDiv.innerHTML = '<span class="success">注册成功！现在可以登录。</span>';
+                isLogin = true;
+                formTitle.innerText = '登录';
+                toggleLink.innerText = '没有账号？点击注册';
+                authForm.querySelector('button').innerText = '登录';
+            }
+        }
+
+        // 清空表单字段
+        usernameInput.value = '';
+        passwordInput.value = '';
+    });
+</script>
+
+</body>
+</html>
